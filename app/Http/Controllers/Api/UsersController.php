@@ -22,12 +22,30 @@ class UsersController extends Controller
         return response()->json($u);
     }
 
-    public function toggleStatus($id){
-        $u = User::findOrFail($id);
-        $u->status = !$u->status;
-        $u->save();
-        return response()->json(['status'=>$u->status]);
+    // public function toggleStatus($id){
+    //     $u = User::findOrFail($id);
+    //     $u->status = !$u->status;
+    //     $u->save();
+    //     return response()->json(['status'=>$u->status]);
+    // }
+    public function toggleStatus($id)
+{
+    $user = User::findOrFail($id);
+
+    // Prevent disabling admin itself
+    if ($user->role->name === 'admin') {
+        return response()->json(['message' => 'Admin cannot be deactivated'], 403);
     }
+
+    $user->status = !$user->status; // toggle
+    $user->save();
+
+    return response()->json([
+        'message' => $user->status ? 'User activated successfully' : 'User deactivated successfully',
+        'user' => $user
+    ]);
+}
+
 
     public function destroy($id){
         User::findOrFail($id)->delete();

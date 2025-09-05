@@ -13,6 +13,14 @@ class Project extends Model
     protected $casts = ['settings' => 'array', 'start_date' => 'date', 'end_date' => 'date'];
 
 
-    public function trees() { return $this->hasMany(Tree::class);
+    public function trees()
+     {
+         return $this->hasMany(Tree::class);
 }
+
+public function users()
+{
+    return $this->belongsToMany(User::class, 'project_user');
+}
+
 }

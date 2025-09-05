@@ -12,24 +12,29 @@ use Illuminate\Support\Facades\Cache;
 class AuthController extends Controller
 {
     public function register(Request $request){
-        $v = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'email' => 'nullable|email|unique:users,email',
-            'mobile' => 'required|unique:users,mobile',
-            'password' => 'required|min:6|confirmed',        
-        ]);
-        if ($v->fails()) return response()->json(['errors'=>$v->errors()],422);
-
-        $user = User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'mobile'=>$request->mobile,
-            'password'=>Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('api-token')->plainTextToken;
-        return response()->json(['user'=>$user,'token'=>$token],201);
+    $v = Validator::make($request->all(), [
+        'name' => 'required|string',
+        'email' => 'nullable|email|unique:users,email',
+        'mobile' => 'required|unique:users,mobile',
+        'password' => 'required|min:6|confirmed',
+        'role_id' => 'nullable|exists:roles,id'
+    ]);
+    if ($v->fails()) {
+        return response()->json(['errors' => $v->errors()], 422);
     }
+
+    $user = User::create([
+        'name'     => $request->name,
+        'email'    => $request->email,
+        'mobile'   => $request->mobile,
+        'password' => Hash::make($request->password),
+        'role_id'  => $request->role_id // default = employee
+    ]);
+
+    $token = $user->createToken('api-token')->plainTextToken;
+    return response()->json(['user' => $user, 'token' => $token], 201);
+}
+
 
     public function login(Request $request){
         $v = Validator::make($request->all(), [
