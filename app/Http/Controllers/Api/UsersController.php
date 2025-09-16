@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class UsersController extends Controller
 {
@@ -50,5 +52,33 @@ class UsersController extends Controller
     public function destroy($id){
         User::findOrFail($id)->delete();
         return response()->json(['message'=>'deleted']);
+    }
+
+    /**
+     * Upload Aadhaar Photo for authenticated user
+     */
+    public function uploadAadhaar(Request $request)
+    {
+        $request->validate([
+            'aadhaar_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $user = $request->user();
+
+        // store Aadhaar photo
+        $path = $request->file('aadhaar_photo')->store('aadhaar', 'public');
+
+        // delete old photo if exists
+        if ($user->aadhaar_photo && Storage::disk('public')->exists($user->aadhaar_photo)) {
+            Storage::disk('public')->delete($user->aadhaar_photo);
+        }
+
+        $user->aadhaar_photo = $path;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Aadhaar photo uploaded successfully',
+            'aadhaar_url' => asset('storage/' . $path)
+        ], 201);
     }
 }

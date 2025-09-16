@@ -38,25 +38,50 @@ class ProjectsController extends Controller
 }
 
 
-    public function store(Request $r)
+//     public function store(Request $r)
+// {
+//     $data = $r->validate([
+//         'name'          => 'required|string|max:255',
+//         'state'         => 'required|string|max:255',
+//         'client'        => 'required|string|max:255',
+//         'company'       => 'required|string|max:255',
+//         'field_officer' => 'required|string|max:255',
+//         // 'start_date'    => 'required|date',
+//         // 'end_date'      => 'required|date|after_or_equal:start_date',
+//         // 'total_wards'   => 'required|integer|min:1',
+//         // 'settings'      => 'nullable|json',  // store settings as JSON
+//     ]);
+
+//     $project = Project::create($data);
+
+//     return response()->json([
+//         'message' => 'Project created successfully!',
+//         'data'    => $project
+//     ], 201);
+// }
+
+public function store(Request $r)
 {
     $data = $r->validate([
         'name'          => 'required|string|max:255',
-        'state'         => 'required|string|max:255',
+        'state_id'      => 'required|exists:states,id',
+        'city_id'       => 'required|exists:cities,id',
         'client'        => 'required|string|max:255',
         'company'       => 'required|string|max:255',
         'field_officer' => 'required|string|max:255',
-        // 'start_date'    => 'required|date',
-        // 'end_date'      => 'required|date|after_or_equal:start_date',
-        // 'total_wards'   => 'required|integer|min:1',
-        // 'settings'      => 'nullable|json',  // store settings as JSON
+        'total_count'   => 'nullable|integer|min:0',
+        'ward'          => 'nullable|string|max:255',
+        'start_date'    => 'required|date',
+        'end_date'      => 'required|date|after_or_equal:start_date',
+        'total_wards'   => 'required|integer|min:1',
+        'settings'      => 'nullable|array',
     ]);
 
     $project = Project::create($data);
 
     return response()->json([
         'message' => 'Project created successfully!',
-        'data'    => $project
+        'data'    => $project->load(['state','city'])
     ], 201);
 }
 
@@ -76,14 +101,17 @@ class ProjectsController extends Controller
 
     $data = $r->validate([
         'name'          => 'required|string|max:255',
-        'state'         => 'required|string|max:255',
+        'state_id'      => 'required|exists:states,id',
+        'city_id'       => 'required|exists:cities,id',
         'client'        => 'required|string|max:255',
         'company'       => 'required|string|max:255',
         'field_officer' => 'required|string|max:255',
-        // 'start_date'    => 'required|date',
-        // 'end_date'      => 'required|date|after_or_equal:start_date',
-        // 'total_wards'   => 'required|integer|min:1',
-        // 'settings'      => 'nullable|json',
+        'total_count'   => 'nullable|integer|min:0',
+        'ward'          => 'nullable|string|max:255',
+        'start_date'    => 'required|date',
+        'end_date'      => 'required|date|after_or_equal:start_date',
+        'total_wards'   => 'required|integer|min:1',
+        'settings'      => 'nullable|array',
     ]);
 
     $project->update($data);

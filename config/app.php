@@ -199,6 +199,8 @@ return [
 
     ],
 
+    'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+
     /*
     |--------------------------------------------------------------------------
     | Class Aliases
@@ -213,5 +215,11 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
+
+    'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
+    'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+    'Image' => Intervention\Image\Facades\Image::class,
+
 
 ];

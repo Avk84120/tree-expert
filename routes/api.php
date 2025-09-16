@@ -15,7 +15,17 @@ use App\Http\Controllers\Api\TreeNamesController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\FirebaseOtpController;
-
+use App\Http\Controllers\Api\LocationController;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\Api\ProjectDetailController;
+use App\Http\Controllers\Api\TreePhotoController;
+use App\Http\Controllers\Api\MapController;
+use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\VideoTutorialController;
+use App\Http\Controllers\Api\PrivacyPolicyController;
+use App\Http\Controllers\Api\ContactController;
+use App\Imports\TreesImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 /*
@@ -54,6 +64,10 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::post('users/{id}/assign-role', [RolesController::class, 'assignRole']); // assign role
     Route::get('users/{id}/role', [RolesController::class, 'userRole']);           // get user role
 });
+
+//States and Cities
+Route::get('states', [LocationController::class, 'states']);
+Route::get('states/{id}/cities', [LocationController::class, 'cities']);
 
 //User Active/Deactive
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
@@ -97,6 +111,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('users/{id}/status', [UsersController::class, 'toggleStatus']);
     Route::delete('users/{id}', [UsersController::class, 'destroy']);
 
+
+    //Projects Details Screen API
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('projects/{id}/details', [ProjectDetailController::class, 'show']);
+    Route::get('projects/{id}/kml', [ProjectDetailController::class, 'exportKml']); // KML with photo links
+    Route::get('projects/{id}/export/excel', [ProjectDetailController::class, 'exportExcel']); // ?unit=cm|m|feet
+    Route::get('projects/{id}/photos/download', [ProjectDetailController::class, 'downloadPhotos']); // zip
+    Route::get('projects/{id}/report', [ProjectDetailController::class, 'report']); // JSON (or PDF)
+});
+
     // Projects
     Route::middleware(['auth:sanctum','role:admin,officer'])->group(function () {
     Route::post('projects/{id}/assign-user', [\App\Http\Controllers\Api\ProjectsController::class, 'assignUser']);
@@ -111,9 +135,56 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('projects/{id}/settings', [ProjectsController::class, 'updateSettings']);
 
     // Trees
+    
     Route::apiResource('trees', TreesController::class);
     Route::get('trees/export/kml', [TreesController::class, 'exportKml']);
+    Route::post('trees/import', [TreesController::class, 'importExcel']);
+    Route::post('trees/geotag', [TreesController::class, 'geotag']);
 
+    //Trees Export Data With Excel
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::get('trees/export/excel/{projectId?}', [\App\Http\Controllers\Api\TreesController::class, 'exportExcel']);
+});
+
+//Download KML with photo links
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('trees/export/kml/{projectId?}', [\App\Http\Controllers\Api\KmlExportController::class, 'downloadKml']);
+});
+//•	Generate Reports API
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('projects/{id}/report', [\App\Http\Controllers\Api\ReportsController::class, 'generateReport']);
+});
+
+//Tree name master list
+Route::middleware('auth:sanctum')->group(function () {
+    // Tree Name Master
+    Route::get('tree-names', [TreeNamesController::class, 'index']);
+    Route::post('tree-names', [TreeNamesController::class, 'store']);
+    Route::put('tree-names/{id}', [TreeNamesController::class, 'update']);
+
+    // Map Trees
+    Route::get('map/trees', [MapController::class, 'treesOnMap']);
+
+    // FAQ
+    Route::get('faqs', [FaqController::class, 'index']);
+    Route::post('faqs', [FaqController::class, 'store']);
+
+    // Video Tutorials
+    Route::get('videos', [VideoTutorialController::class, 'index']);
+    Route::post('videos', [VideoTutorialController::class, 'store']);
+
+    // Privacy Policy
+    Route::get('privacy-policy', [PrivacyPolicyController::class, 'show']);
+    Route::post('privacy-policy', [PrivacyPolicyController::class, 'update']);
+
+    // Contact
+    Route::get('contacts', [ContactController::class, 'index']);
+    Route::post('contacts', [ContactController::class, 'store']);
+});
+
+
+
+    
     // Plantations
     Route::apiResource('plantations', PlantationsController::class);
     Route::post('plantations/{id}/trees', [PlantationsController::class, 'addTree']);
@@ -123,13 +194,22 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tree Names (Master List)
     Route::apiResource('tree-names', TreeNamesController::class);
 
-    // Uploads
-    Route::post('upload/aadhaar', [UploadController::class, 'uploadAadhaar']);
+    // Tree Photos Upload API 
+    Route::middleware('auth:sanctum')->group(function () {
+    Route::post('trees/photos/upload', [\App\Http\Controllers\Api\TreePhotoController::class, 'upload']);
+});
+
+
+    // Uploads aadhaar
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('user/upload-aadhaar', [\App\Http\Controllers\Api\UsersController::class, 'uploadAadhaar']);
+});
 
     // Reports
     Route::get('reports/master', [ReportsController::class, 'masterReport']);
     Route::get('reports/export/excel', [ReportsController::class, 'exportExcel']);
     Route::get('reports/export/pdf', [ReportsController::class, 'exportPdf']);
+    Route::get('reports/export/kml', [ReportsController::class, 'exportKml']);
 
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index']);

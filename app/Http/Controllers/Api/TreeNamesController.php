@@ -12,23 +12,26 @@ class TreeNamesController extends Controller
         return response()->json(TreeName::paginate(20));
     }
 
-    public function store(Request $r){
-        $data = $r->validate([
-            'common_name'=>'required|string',
-            'scientific_name'=>'nullable|string',
-            'family'=>'nullable|string'
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'common_name' => 'required|string|max:255',
+            'scientific_name' => 'nullable|string|max:255',
+            'family' => 'nullable|string|max:255',
         ]);
-        return response()->json(TreeName::create($data),201);
-    }
 
+        $tree = TreeName::create($data);
+        return response()->json($tree, 201);
+    }
     public function show($id){
         return response()->json(TreeName::findOrFail($id));
     }
 
-    public function update(Request $r,$id){
-        $t = TreeName::findOrFail($id);
-        $t->update($r->all());
-        return response()->json($t);
+    public function update(Request $request, $id)
+    {
+        $tree = TreeName::findOrFail($id);
+        $tree->update($request->all());
+        return response()->json($tree);
     }
 
     public function destroy($id){

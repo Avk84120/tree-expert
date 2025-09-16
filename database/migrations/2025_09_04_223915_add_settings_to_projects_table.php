@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('projects', function (Blueprint $table) {
-        $table->json('settings')->nullable();
-        });
+        // Schema::table('projects', function (Blueprint $table) {
+        // $table->json('settings')->nullable();
+        // });
 
     }
 

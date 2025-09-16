@@ -25,9 +25,10 @@ class Plantation extends Model
     }
 
     public function trees()
-    {
-        return $this->belongsToMany(Tree::class, 'plantation_tree');
-    }
+{
+    return $this->hasMany(Tree::class);
+}
+
 
     public function photos()
     {

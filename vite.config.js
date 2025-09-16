@@ -11,18 +11,4 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    server: {
-        host: 'localhost',
-        port: 5173, // default Vite port
-    },
-    build: {
-        manifest: true,
-        outDir: 'public/build',
-        rollupOptions: {
-            input: [
-                'resources/css/app.css',
-                'resources/js/app.js',
-            ],
-        },
-    },
 });
