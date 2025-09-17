@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\MediaController;
 // use App\Http\Controllers\Admin\TreeController;
 use App\Http\Controllers\Admin\TreeNameController;
 use App\Http\Controllers\Admin\MapTreeController;
+use App\Http\Controllers\Admin\PlantationController;
+
+
 
 
 
@@ -116,6 +119,11 @@ Route::post('/tree-names', [TreeNameController::class, 'store'])->name('tree.nam
 Route::put('/tree-names/{id}', [TreeNameController::class, 'update'])->name('tree.names.update');
 Route::delete('/tree-names/{id}', [TreeNameController::class, 'destroy'])->name('tree.names.destroy');
 
+// Plantation Routes
+Route::resource('plantations', PlantationController::class)->except(['show']); 
+// URL path should use slashes, not dots
+Route::get('plantations/select-plantation', [PlantationController::class, 'selectLand'])->name('plantation.select');
+Route::post('plantations/select-plantation', [PlantationController::class, 'storeLand'])->name('plantation.store');
 
 // Map Tree
 Route::get('/map-trees', [MapTreeController::class, 'index'])->name('map.trees.index');

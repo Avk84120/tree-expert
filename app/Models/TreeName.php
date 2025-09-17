@@ -18,4 +18,12 @@ class TreeName extends Model
     {
         return $this->hasMany(Tree::class);
     }
+
+    // TreeName.php
+public function plantations()
+{
+    return $this->belongsToMany(Plantation::class, 'plantation_trees')
+                ->withPivot('count')->withTimestamps();
+}
+
 }
